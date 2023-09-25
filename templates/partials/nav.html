@@ -1,0 +1,78 @@
+{% load static %}
+<style>
+  .alert-success {
+    background-color: #28a745; /* Green */
+    color: #fff; /* White text */
+  }
+  
+  .alert-error {
+    background-color: #dc3545; /* Red */
+    color: #fff; /* White text */
+  }
+  
+  .alert-info {
+    background-color: #17a2b8; /* Blue */
+    color: #fff; /* White text */
+  }  
+</style>
+<!--Navbar-->
+<nav class="navbar navbar-expand-lg navbar-info bg-info">
+
+  <div class="container">
+    <a class="navbar-brand text-white" href="">Task Manager</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link text-white" href="/dash-board/">Add Task<span
+                  class="sr-only">(current)</span></a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ml-auto">
+        {% if request.user.is_authenticated %}
+          <!-- If the user is authenticated (logged in) -->
+          <li class="nav-item">
+            <a class="nav-link text-white" href="#">{{ request.user.username }}</a>
+          </li>          
+          <li class="nav-item">
+            <a class="nav-link text-white" href="{% url "logout" %}">Logout</a>
+          </li>
+        {% else %}
+          <!-- If the user is not authenticated (not logged in) -->
+          <li class="nav-item">
+            <a class="nav-link text-white" href="{% url "login" %}">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="{% url "register" %}">Register</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+<!--End Navbar-->
+<!-- Display messages below the navbar -->
+<!-- Display messages below the navbar -->
+{% if messages %}
+<div>
+  <div class="row">
+    <div class="col-md-12">
+      {% for message in messages %}
+      <div class="alert alert-dismissible fade show {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% elif message.tags == 'info' %}alert-info{% endif %}" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+
