@@ -9,9 +9,14 @@ class TaskAdmin(admin.ModelAdmin):
     inlines = [TaskPhotoInline]
     
 
+#User view > email username last logging superuser updatedat 
+class UserAdmin(admin.ModelAdmin):
+    list_display = ['email', 'username', 'is_superuser', 'last_login', 'date_joined', 'date_joined']
+    list_display_links = ['email']
+
 
 
 
 # Register your models here.
-admin.site.register(User)
+admin.site.register(User,UserAdmin)
 admin.site.register(Task, TaskAdmin)
