@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+<style>
+        /* CSS to hide the custom close button */
+    .lightbox-close-button {
+        display: none;
+        /* Add other styling as needed */
+    }
+
+</style>
+
+
+<div class="container">
+    <h2 class="my-4">Task Details</h2>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">{{ task.title }}</h3>
+                    <p class="card-text">{{ task.description }}</p>
+                    <p class="card-text">{{ task.due_date }}</p>
+                    <p class="card-text">{{ task.priority }}</p>
+                    <p class="card-text">{% if task.completed %}Completed{% else %}Not Completed{% endif %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Display Task Photos -->
+    <h2>Task All Images</h2>
+    <div class="row mt-4"> 
+        {% for photo in task.photos.all %}
+        <div class="col-md-4">
+            <a href="{{ photo.photo.url }}" data-lightbox="{{ task.title }}">
+                <img src="{{ photo.photo.url }}" alt="Task Photo" class="card-img-top">
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    <!-- Custom Close Button -->
+    <div class="lightbox-close-button" id="custom-lightbox-close-button">
+        <span class="close-icon">X</span>
+    </div>
+
+</div>
+
+<script>
+    lightbox.option({
+        'resizeDuration': 200,
+        'wrapAround': true,
+        'onOpen': function () {
+            // Show the custom close button when Lightbox2 is opened
+            document.getElementById('custom-lightbox-close-button').style.display = 'block';
+        },
+        'onClose': function () {
+            // Hide the custom close button when Lightbox2 is closed
+            document.getElementById('custom-lightbox-close-button').style.display = 'none';
+        }
+    });
+
+    // Custom Close Button Click Event
+    document.getElementById('custom-lightbox-close-button').addEventListener('click', function () {
+        lightbox.close(); // Close the Lightbox2 pop-up
+    });
+</script>
+
+
+{% endblock content %}

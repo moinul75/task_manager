@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings 
+from multiupload.fields import MultiFileField, MultiMediaField, MultiImageField
 
 
 PRIORITY_CHOICES = (
@@ -40,7 +41,7 @@ class Task(models.Model):
 # adding  a model for task photos
 class TaskPhoto(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='photos')
-    photo = models.ImageField(upload_to='task_photos/') 
+    photo =  models.FileField(upload_to='task_photos/')
 
     def __str__(self):
         return f"Photo for {self.task.title}"

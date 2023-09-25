@@ -2,6 +2,8 @@ from django import forms
 from .models import Task,TaskPhoto ,User 
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import get_user_model
+from multiupload.fields import MultiFileField
+
 
 class UserRegistrationForm(forms.ModelForm):
     class Meta:
@@ -76,6 +78,24 @@ class LoginForm(forms.Form):
                 # Add a password error to the password field
                 self.add_error('password', 'The provided password is incorrect.')
 
-        
-        
-        
+# #adding task forms 
+class TaskForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = ['title', 'description', 'due_date', 'priority', 'completed']
+
+
+
+class TaskPhotoForm(forms.ModelForm):
+    class Meta:
+        model = TaskPhoto
+        fields = ['photo']
+  # Use MultiValueField with MultipleHiddenInput widget for multiple file uploads
+    # photo = forms.FileField(
+    #     widget=forms.ClearableFileInput(),
+    # )
+    photo = MultiFileField(
+        min_num=1,
+        max_num=10,  # Adjust the maximum number of files if needed
+        max_file_size=1024 * 1024 * 5,  # 5 MB
+    )
