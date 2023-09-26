@@ -19,7 +19,11 @@
 <nav class="navbar navbar-expand-lg navbar-info bg-info">
 
   <div class="container">
-    <a class="navbar-brand text-white" href="">Task Manager</a>
+    {% if request.user.is_authenticated %}
+    <a class="navbar-brand text-white" href="{% url "task_list" %}">Task Manager</a>
+    {% else %}
+    <a class="navbar-brand text-white" href="/">Task Manager</a> 
+    {% endif %}
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -28,8 +32,10 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
+          {% if request.user.is_authenticated %}
           <a class="nav-link text-white" href="{% url "create_task" %}">Add Task<span
                   class="sr-only">(current)</span></a>
+          {% endif %}
         </li>
       </ul>
       <ul class="navbar-nav ml-auto">

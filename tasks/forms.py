@@ -24,7 +24,7 @@ class MultipleFileField(forms.FileField):
 class UserRegistrationForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['fullname', 'email', 'username', 'password']  # Include the fields you want
+        fields = ['fullname', 'email', 'username', 'password'] 
 
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={'class': 'form-control'}),
@@ -41,7 +41,6 @@ class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
         max_length=128,
-        help_text='Password should be at least 8 characters long.'
     )
 
     def clean_email(self):
@@ -60,7 +59,7 @@ class UserRegistrationForm(forms.ModelForm):
     
     def save(self, commit=True):
         user = super(UserRegistrationForm, self).save(commit=False)
-        user.set_password(self.cleaned_data['password'])  # Hash the password
+        user.set_password(self.cleaned_data['password'])  
         if commit:
             user.save()
         return user
@@ -113,7 +112,7 @@ class TaskForm(forms.ModelForm):
 
 
 class TaskPhotoForm(forms.ModelForm):
-    photo = MultipleFileField(widget=MultipleFileInput())
+    photo = MultipleFileField(required=False, widget=MultipleFileInput())
 
     class Meta:
         model = TaskPhoto
@@ -122,6 +121,6 @@ class TaskPhotoForm(forms.ModelForm):
 TaskPhotoFormSet = forms.modelformset_factory(
     TaskPhoto,
     form=TaskPhotoForm,
-    extra=0,  # Set this to 0 to prevent adding new photos
+    extra=0, 
     can_delete=True,
 )

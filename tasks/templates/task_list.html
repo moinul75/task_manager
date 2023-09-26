@@ -1,32 +1,40 @@
 {% extends "base.html" %}
 {% load static %}
+{% block title  %} Task List {% endblock title  %}
 {% block content %}
 
 <div class="container">
-    <form method="get" class="mb-3">
-        <div class="row g-3 align-items-center">
+    <form method="get" class="mb-3 mt-5">
+        <div class="row align-items-center">
             <div class="col-md-2">
-                {{ filter.form.title.label_tag }}
-                {{ filter.form.title }}
+                <div class="form-group">
+                   
+                    {{ filter.form.title }}
+                </div>
             </div>
             <div class="col-md-2">
-                {{ filter.form.due_date.label_tag }}
-                {{ filter.form.due_date }}
+                <div class="form-group">
+                    
+                    {{ filter.form.due_date }}
+                </div>
             </div>
             <div class="col-md-2">
-                {{ filter.form.priority.label_tag }}
-                {{ filter.form.priority }}
+                <div class="form-group">
+                  
+                    {{ filter.form.priority }}
+                </div>
             </div>
             <div class="col-md-2">
-                {{ filter.form.completed.label_tag }}
-                {{ filter.form.completed }}
+                <div class="form-group">
+                    {{ filter.form.completed }}
+                </div>
             </div>
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary">Apply Filters</button>
             </div>
-    
         </div>
     </form>
+    
     
   <!-- Display Tasks in a Table -->
   <h2>Task List</h2>
@@ -38,6 +46,8 @@
                   <th>Title</th>
                   <th>Description</th>
                   <th>Due Date</th>
+                  <th>Created</th>
+                  <th>Last Updated</th>
                   <th>Priority</th>
                   <th>Completed</th> <!-- Add a new header for the Completed status -->
                   <th>Actions</th>
@@ -49,6 +59,8 @@
                 <td class="clickable-row" data-href="{% url 'task_detail' task.id %}">{{ task.title }}</td>
                 <td class="clickable-row" data-href="{% url 'task_detail' task.id %}">{{ task.description }}</td>
                 <td class="clickable-row" data-href="{% url 'task_detail' task.id %}">{{ task.due_date }}</td>
+                <td>{{ task.created_at }}</td>
+                <th>{{task.updated_at }}</th>
                 <td>
                     {% if task.priority == 1 %}
                         High
@@ -59,7 +71,9 @@
                     {% endif %}
                 </td>
                 
-                <td><input type="checkbox" {% if task.completed %}checked{% endif %} disabled></td>
+                <td>
+                    <input type="checkbox" {% if task.completed %}checked disabled{% endif %} data-task-id="{{ task.id }}" class="mark-as-done">
+                </td>                            
                 <td>
                     <div class="d-flex">
                         <a href="{% url "update_task" task.id %}" class="btn btn-success mr-2">Edit</a> 
@@ -114,10 +128,64 @@
             });
         });
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkboxes = document.querySelectorAll('.mark-as-done');
+    
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const taskID = this.getAttribute('data-task-id');
+    
+                // Show a confirmation alert
+                const confirmed = confirm('Are you sure you want to mark this task as done?');
+    
+                if (confirmed) {
+                    // Send an AJAX request to mark the task as done
+                    fetch(`/mark_as_done/${taskID}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'), 
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({}),
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Task marked as done.');
+                            // Disable the checkbox after marking as done
+                            this.disabled = true;
+                        } else {
+                            console.error('Error marking task as done.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                } else {
+                    this.checked = false;
+                }
+            });
+        });
+    
+        // Function to get CSRF token from cookies (you can replace it with your own method)
+        function getCookie(name) {
+            const cookieValue = document.cookie.match(`(^|;)\\s*${name}=([^;]*)`);
+            return cookieValue ? cookieValue.pop() : '';
+        }
+    });
+    
+
+    
+    
+    
+    
+    
         
     </script>
 
 {% endblock content %}
+
+
 
 
 

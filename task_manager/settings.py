@@ -180,6 +180,6 @@ EMAIL_HOST_USER = config('EMAIL_HOST')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = 587 
 
-
-
-
+#login redirecting page 
+LOGIN_REDIRECT_URL = 'task_list'
+LOGIN_URL = 'login'

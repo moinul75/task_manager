@@ -1,5 +1,5 @@
 from django.urls import path,include
-from tasks.views import RegistrationView,LoginView,TaskListView,TaskDetailView,TaskCreateView,TaskDeleteView,TaskUpdateView
+from tasks.views import RegistrationView,LoginView,TaskListView,TaskDetailView,TaskCreateView,TaskDeleteView,TaskUpdateView, MarkAsDoneView
 from django.contrib.auth.views import LogoutView,PasswordResetView,PasswordResetDoneView,PasswordResetConfirmView,PasswordResetCompleteView
 
 #for rest api and router 
@@ -26,6 +26,7 @@ urlpatterns = [
     path('create-task/', TaskCreateView.as_view(), name='create_task'),
     path('delete_task/<int:pk>/', TaskDeleteView.as_view(), name='delete_task'),
     path('update_task/<int:pk>/', TaskUpdateView.as_view(), name='update_task'),
+    path('mark_as_done/<int:pk>/', MarkAsDoneView.as_view(), name='mark_as_done'),
     
     #rest api endpoints 
     path('api/', include(router.urls)),

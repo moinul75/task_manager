@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% block title  %} Task Details {% endblock title  %}
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
@@ -47,6 +48,9 @@
             </a>
         </div>
         {% endfor %}
+    </div>
+    <div class="text-right"> <!-- Add this div for alignment -->
+        <a href="{% url 'task_list' %}" class="btn btn-secondary">Go to Task List</a>
     </div>
     <!-- Custom Close Button -->
     <div class="lightbox-close-button" id="custom-lightbox-close-button">
