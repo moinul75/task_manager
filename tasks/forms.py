@@ -112,7 +112,7 @@ class TaskForm(forms.ModelForm):
 
 
 class TaskPhotoForm(forms.ModelForm):
-    photo = MultipleFileField(required=False, widget=MultipleFileInput())
+    photo = MultipleFileField(widget=MultipleFileInput())
 
     class Meta:
         model = TaskPhoto
@@ -124,3 +124,4 @@ TaskPhotoFormSet = forms.modelformset_factory(
     extra=0, 
     can_delete=True,
 )
+

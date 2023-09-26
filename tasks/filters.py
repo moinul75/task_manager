@@ -2,24 +2,29 @@ import django_filters
 from .models import Task
 from django import forms
 
-class TaskFilter(django_filters.FilterSet):
-    title = django_filters.CharFilter(
-        field_name='title',
-        lookup_expr='icontains',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Search by title'}),
-    )
+PRIORITY_CHOICES = (
+    (1, 'High'),
+    (2, 'Medium'),
+    (3, 'Low'),
+)
 
-    due_date = django_filters.DateFilter(
-        field_name='due_date',
-        lookup_expr='exact',  # Use 'exact' or 'iexact'
+class TaskFilter(django_filters.FilterSet):
+    created_at = django_filters.DateFilter(
+        field_name='created_at',
+        lookup_expr='date',  
         widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
     )
 
-    priority = django_filters.ModelChoiceFilter(
-        field_name='priority',
-        queryset=Task.objects.all(),  # Replace 'Priority' with your actual model name
+
+    due_date = django_filters.DateFilter(
+        field_name='due_date',
+        lookup_expr='exact', 
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+    )
+    priority = django_filters.ChoiceFilter(
+        choices=PRIORITY_CHOICES,
         widget=forms.Select(attrs={'class': 'form-control'}),
-        label='Priority',  # Label for the select field
+        label='Priority',
     )
     completed = django_filters.BooleanFilter(
         field_name='completed',
@@ -29,4 +34,4 @@ class TaskFilter(django_filters.FilterSet):
 
     class Meta:
         model = Task
-        fields = ['priority']
+        fields = []

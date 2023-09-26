@@ -16,6 +16,7 @@ from .serializers import TaskWithPhotosSerializer
 from tasks.models import User,Task,TaskPhoto
 from .forms import UserRegistrationForm,LoginForm,TaskPhotoForm,TaskForm,TaskPhotoFormSet
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 
 
 
@@ -68,21 +69,30 @@ class LoginView(View):
     
 
 
-class TaskListView(FilterView):
+class TaskListView(LoginRequiredMixin,FilterView):
     model = Task
     template_name = 'task_list.html'
     context_object_name = 'tasks'
     ordering = ['priority']
-    paginate_by = 15
-    filterset_class = TaskFilter  # Use the TaskFilter class for filtering
+    paginate_by = 5
+    filterset_class = TaskFilter 
 
     def get_queryset(self):
         query = self.request.GET.get('q')
+        queryset = Task.objects.filter(user=self.request.user)
+
 
         if query:
-            return Task.objects.filter(title__icontains=query)
-        else:
-            return Task.objects.all()
+            queryset = queryset.filter(
+                Q(title__icontains=query) 
+            )
+
+        return queryset 
+    #search by title 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_form'] = TaskFilter(data=self.request.GET, queryset=self.get_queryset())
+        return context
     
 #task details page 
 class TaskDetailView(LoginRequiredMixin,DetailView):
@@ -188,6 +198,15 @@ class MarkAsDoneView(LoginRequiredMixin,View):
 class TaskViewSet(LoginRequiredMixin,viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskWithPhotosSerializer
+    
+    
+    
+class MyProtectedView(LoginRequiredMixin, View):
+    login_url = '/login/'  
+    redirect_field_name = 'next'  
+    raise_exception = False 
+
+
 
 
 
