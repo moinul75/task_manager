@@ -3,7 +3,7 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
-<div class="container">
+{% comment %} <div class="container">
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form|crispy }}
@@ -11,7 +11,27 @@
         <button type="submit" class="btn btn-primary">Create Task</button>
     </form>
     
+</div> {% endcomment %}
+
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-md-12 offset-md-0">
+            <div class="border bg-white p-3">
+                <h2>Create Task</h2>
+                <hr>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    {{ photo_form|crispy }}
+                    <button type="submit" class="btn btn-primary">Create Task</button>
+                </form>
+                
+             
+            </div>
+        </div>
+    </div>
 </div>
+
 
 
 

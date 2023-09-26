@@ -1,13 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings 
-from multiupload.fields import MultiFileField, MultiMediaField, MultiImageField
+# from multiupload.fields import MultiFileField, MultiMediaField, MultiImageField
 
+
+high = 1
+medium = 2
+low = 3 
 
 PRIORITY_CHOICES = (
-    ('low', 'Low'),
-    ('medium', 'Medium'),
-    ('high', 'High'),
+    (low, 'Low'),
+    (medium, 'Medium'),
+    (high, 'High'),
 )
 
 class User(AbstractUser):
@@ -29,12 +33,16 @@ class Task(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     due_date = models.DateField()
-    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES)
+    priority = models.PositiveIntegerField(choices=PRIORITY_CHOICES,null=True)
     completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
+    
+    #ordering with priority 
+    class Meta: 
+        ordering = ['priority']
+        
     def __str__(self):
         return self.title
 

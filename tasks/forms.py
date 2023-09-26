@@ -80,9 +80,19 @@ class LoginForm(forms.Form):
 
 # #adding task forms 
 class TaskForm(forms.ModelForm):
+    
     class Meta:
         model = Task
         fields = ['title', 'description', 'due_date', 'priority', 'completed']
+        widgets = {
+            'title': forms.TextInput(attrs={'class':'form-control','placeholder':'Title'}),
+            'description': forms.Textarea(attrs={'class':'form-control','placeholder':'Description'}),
+            'due_date':  forms.DateInput(attrs={'type': 'date','class':'form-control'}),
+            'priority': forms.Select(attrs={'class': 'form-control'}),
+            'completed': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+         
+            
+        }
 
 
 
@@ -90,12 +100,9 @@ class TaskPhotoForm(forms.ModelForm):
     class Meta:
         model = TaskPhoto
         fields = ['photo']
-  # Use MultiValueField with MultipleHiddenInput widget for multiple file uploads
-    # photo = forms.FileField(
-    #     widget=forms.ClearableFileInput(),
+    
+    # photo = MultiFileField(
+    #     min_num=1,
+    #     max_num=10,  # Adjust the maximum number of files if needed
+    #     max_file_size=1024 * 1024 * 5,  # 5 MB
     # )
-    photo = MultiFileField(
-        min_num=1,
-        max_num=10,  # Adjust the maximum number of files if needed
-        max_file_size=1024 * 1024 * 5,  # 5 MB
-    )

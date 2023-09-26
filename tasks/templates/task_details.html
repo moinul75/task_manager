@@ -22,7 +22,15 @@
                     <h3 class="card-title">{{ task.title }}</h3>
                     <p class="card-text">{{ task.description }}</p>
                     <p class="card-text">{{ task.due_date }}</p>
-                    <p class="card-text">{{ task.priority }}</p>
+                    <p class="card-text">
+                        {% if task.priority == 1 %}
+                            High
+                        {% elif task.priority == 2 %}
+                            Medium
+                        {% elif task.priority == 3 %}
+                            Low
+                        {% endif %}
+                    </p>                    
                     <p class="card-text">{% if task.completed %}Completed{% else %}Not Completed{% endif %}</p>
                 </div>
             </div>

@@ -2,9 +2,14 @@ from django.shortcuts import render,redirect
 from django.views import View
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
-from django.views.generic import ListView,DetailView,CreateView
+from django.views.generic import ListView,DetailView,CreateView,UpdateView
 from django.contrib.auth import authenticate,login
 from django.contrib import messages
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django_filters.views import FilterView
+from .filters import TaskFilter
+from django.core.paginator import Paginator
 
 from tasks.models import User,Task,TaskPhoto
 from .forms import UserRegistrationForm,LoginForm,TaskPhotoForm,TaskForm
@@ -58,27 +63,43 @@ class LoginView(View):
     
     
 #task list view 
-class TaskListView(ListView):
-    model = Task 
-    template_name = 'task_list.html'  
-    context_object_name = 'tasks' 
-    ordering = ['-priority']  
+# class TaskListView(ListView):
+#     model = Task 
+#     template_name = 'task_list.html'  
+#     context_object_name = 'tasks' 
+#     ordering = ['priority']  
+#     paginate_by = 15
+   
 
-    # You can override other attributes and methods as needed
-    # For example, you can add filters or custom context data
+#     def get_queryset(self):
+#         query = self.request.GET.get('q')
+
+#         if query:
+#             return Task.objects.filter(title__icontains=query)
+#         else:
+#             return Task.objects.all()
+
+class TaskListView(FilterView):
+    model = Task
+    template_name = 'task_list.html'
+    context_object_name = 'tasks'
+    ordering = ['priority']
+    paginate_by = 15
+    filterset_class = TaskFilter  # Use the TaskFilter class for filtering
 
     def get_queryset(self):
-        # Customize the queryset if needed (e.g., filtering)
-        queryset = super().get_queryset()  # Get the default queryset
-        # Add your custom filtering or ordering logic here
-        return queryset
+        query = self.request.GET.get('q')
+
+        if query:
+            return Task.objects.filter(title__icontains=query)
+        else:
+            return Task.objects.all()
     
 #task details page 
 class TaskDetailView(DetailView):
     model = Task
     template_name = 'task_details.html'
     context_object_name = 'task' 
-
 
 
 class TaskCreateView(CreateView):
@@ -99,4 +120,63 @@ class TaskCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['photo_form'] = TaskPhotoForm()
+        return context 
+    def get_success_url(self) -> str:
+        return reverse_lazy('task_list')
+    
+
+#tasks update 
+
+
+
+#tasks delete 
+class TaskDeleteView(View):
+    def delete(self, request, pk, *args, **kwargs):
+        try:
+            # Get the task by primary key (pk)
+            task = Task.objects.get(pk=pk)
+            
+            # Send a success message before deletion
+            messages.success(request, 'Task deleted successfully')
+            
+            # Delete the task
+            task.delete()
+            
+            # Return a JSON response indicating success
+            return JsonResponse({'message': 'Task deleted successfully'})
+        
+        except Task.DoesNotExist:
+            # Send an error message and a JSON response with a 404 status code
+            messages.error(request, 'Task not found')
+            return JsonResponse({'error': 'Task not found'}, status=404)
+
+#updated task view 
+class TaskUpdateView(UpdateView):
+    model = Task
+    template_name = 'update_task.html'
+    form_class = TaskForm
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        task = form.save()
+        photo_form = TaskPhotoForm(self.request.POST, self.request.FILES)
+        if photo_form.is_valid():
+            for photo in self.request.FILES.getlist('photo'):
+                TaskPhoto.objects.create(task=task, photo=photo)
+
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['photo_form'] = TaskPhotoForm()
         return context
+
+    def get_success_url(self):
+        return reverse_lazy('task_list') 
+
+
+
+ 
+ 
+ 
+ 
