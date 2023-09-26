@@ -11,10 +11,11 @@ from django_filters.views import FilterView
 from .filters import TaskFilter
 from django.core.paginator import Paginator
 from rest_framework import viewsets
-from .serializers import TaskSerializer
+from .serializers import TaskWithPhotosSerializer
 
 from tasks.models import User,Task,TaskPhoto
-from .forms import UserRegistrationForm,LoginForm,TaskPhotoForm,TaskForm
+from .forms import UserRegistrationForm,LoginForm,TaskPhotoForm,TaskForm,TaskPhotoFormSet
+from django.contrib.auth.views import PasswordResetView
 
 
 
@@ -128,7 +129,6 @@ class TaskCreateView(CreateView):
         return reverse_lazy('task_list')
     
 
-#tasks update 
 
 
 
@@ -162,27 +162,37 @@ class TaskUpdateView(UpdateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         task = form.save()
+
+        # Handle updating existing photos
         photo_form = TaskPhotoForm(self.request.POST, self.request.FILES)
         if photo_form.is_valid():
             for photo in self.request.FILES.getlist('photo'):
                 TaskPhoto.objects.create(task=task, photo=photo)
+
+        # Handle retaining previously uploaded photos
+        existing_photos = TaskPhoto.objects.filter(task=task)
+        formset = TaskPhotoFormSet(self.request.POST, self.request.FILES, instance=task)
+        if formset.is_valid():
+            formset.save()
 
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['photo_form'] = TaskPhotoForm()
+        task = self.get_object()
+        context['existing_photos'] = TaskPhoto.objects.filter(task=task)
         return context
 
     def get_success_url(self):
-        return reverse_lazy('task_list') 
+        return reverse_lazy('task_list')
 
 
 #REST API using viewset (CRUD)
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
-    serializer_class = TaskSerializer
+    serializer_class = TaskWithPhotosSerializer
 
 
 

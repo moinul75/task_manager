@@ -16,7 +16,15 @@
                     {{ photo_form|crispy }}
                     <button type="submit" class="btn btn-primary">Update Task</button>
                 </form>
-                
+
+                   <!-- Display current photos -->
+                   <h3>Current Photos:</h3>
+                   <ul>
+                       {% for photo in existing_photos %}
+                           <li><a href="{{ photo.photo.url }}" target="_blank">{{ photo.photo.url }}</a></li>
+                       {% endfor %}
+                   </ul>
+                   
              
             </div>
         </div>

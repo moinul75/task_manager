@@ -2,7 +2,7 @@ from django import forms
 from .models import Task,TaskPhoto ,User 
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import get_user_model
-from django.forms import ClearableFileInput
+
 
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
@@ -118,3 +118,10 @@ class TaskPhotoForm(forms.ModelForm):
     class Meta:
         model = TaskPhoto
         fields = ['photo']
+
+TaskPhotoFormSet = forms.modelformset_factory(
+    TaskPhoto,
+    form=TaskPhotoForm,
+    extra=0,  # Set this to 0 to prevent adding new photos
+    can_delete=True,
+)

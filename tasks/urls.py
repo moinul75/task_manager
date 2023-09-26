@@ -1,6 +1,6 @@
 from django.urls import path,include
 from tasks.views import RegistrationView,LoginView,TaskListView,TaskDetailView,TaskCreateView,TaskDeleteView,TaskUpdateView
-from django.contrib.auth.views import LogoutView,PasswordResetView
+from django.contrib.auth.views import LogoutView,PasswordResetView,PasswordResetDoneView,PasswordResetConfirmView,PasswordResetCompleteView
 
 #for rest api and router 
 from rest_framework.routers import DefaultRouter
@@ -16,6 +16,9 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
     #password reset 
     path('password_reset/', PasswordResetView.as_view(template_name='password_reset.html'), name='password_reset'),
+    path('password_reset/done/', PasswordResetDoneView.as_view(template_name='password_reset_done.html'), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'), name='password_reset_confirm'),
+    path('reset/done/', PasswordResetCompleteView.as_view(template_name='passwor_confirm_complete.html'), name='password_reset_complete'),
    
     #task crud views
     path('',TaskListView.as_view(),name='task_list'),
