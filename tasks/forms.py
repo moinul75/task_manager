@@ -2,7 +2,23 @@ from django import forms
 from .models import Task,TaskPhoto ,User 
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import get_user_model
-from multiupload.fields import MultiFileField
+from django.forms import ClearableFileInput
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
 
 
 class UserRegistrationForm(forms.ModelForm):
@@ -97,12 +113,8 @@ class TaskForm(forms.ModelForm):
 
 
 class TaskPhotoForm(forms.ModelForm):
+    photo = MultipleFileField(widget=MultipleFileInput())
+
     class Meta:
         model = TaskPhoto
         fields = ['photo']
-    
-    # photo = MultiFileField(
-    #     min_num=1,
-    #     max_num=10,  # Adjust the maximum number of files if needed
-    #     max_file_size=1024 * 1024 * 5,  # 5 MB
-    # )

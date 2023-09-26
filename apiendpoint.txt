@@ -1,0 +1,11 @@
+#Retrive all task  
+http://localhost:8000/api/tasks/
+
+#Retrive a single tasks 
+http://localhost:8000/api/tasks/<task_id>/
+
+#UPDATA a single task 
+http://localhost:8000/api/tasks/<task_id>/
+
+#DELETE a single task 
+http://localhost:8000/api/tasks/<task_id>/

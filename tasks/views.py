@@ -10,9 +10,12 @@ from django.contrib.auth.decorators import login_required
 from django_filters.views import FilterView
 from .filters import TaskFilter
 from django.core.paginator import Paginator
+from rest_framework import viewsets
+from .serializers import TaskSerializer
 
 from tasks.models import User,Task,TaskPhoto
 from .forms import UserRegistrationForm,LoginForm,TaskPhotoForm,TaskForm
+
 
 
 class RegistrationView(View):
@@ -175,8 +178,18 @@ class TaskUpdateView(UpdateView):
         return reverse_lazy('task_list') 
 
 
+#REST API using viewset (CRUD)
 
- 
+class TaskViewSet(viewsets.ModelViewSet):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+
+
+
+
+
+
+
  
  
  
