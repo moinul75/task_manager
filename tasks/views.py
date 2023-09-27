@@ -146,25 +146,25 @@ class TaskCreateView(LoginRequiredMixin,CreateView):
 class TaskDeleteView(LoginRequiredMixin,View):
     def delete(self, request, pk, *args, **kwargs):
         try:
-            # Get the task by primary key (pk)
+           
             task = Task.objects.get(pk=pk)
             
-            # Send a success message before deletion
+           
             messages.success(request, 'Task deleted successfully')
             
-            # Delete the task
+          
             task.delete()
             
-            # Return a JSON response indicating success
+    
             return JsonResponse({'message': 'Task deleted successfully'})
         
         except Task.DoesNotExist:
-            # Send an error message and a JSON response with a 404 status code
+           
             messages.error(request, 'Task not found')
             return JsonResponse({'error': 'Task not found'}, status=404)
 
 #updated task view 
-class TaskUpdateView(LoginRequiredMixin,UpdateView):
+class TaskUpdateView(LoginRequiredMixin, UpdateView):
     model = Task
     template_name = 'update_task.html'
     form_class = TaskForm
@@ -173,23 +173,24 @@ class TaskUpdateView(LoginRequiredMixin,UpdateView):
         form.instance.user = self.request.user
         task = form.save()
 
-        # Handle updating existing photos
+       
         photo_form = TaskPhotoForm(self.request.POST, self.request.FILES)
         if photo_form.is_valid():
             for photo in self.request.FILES.getlist('photo'):
                 TaskPhoto.objects.create(task=task, photo=photo)
 
-        # Handle retaining previously uploaded photos
         existing_photos = TaskPhoto.objects.filter(task=task)
-        formset = TaskPhotoFormSet(self.request.POST, self.request.FILES, instance=task)
+        formset = TaskPhotoFormSet(self.request.POST, self.request.FILES)
         if formset.is_valid():
-            formset.save()
+            instances = formset.save(commit=False)
+            for instance in instances:
+                instance.task = task
+                instance.save()
 
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['photo_form'] = TaskPhotoForm()
         task = self.get_object()
         context['existing_photos'] = TaskPhoto.objects.filter(task=task)
         return context
