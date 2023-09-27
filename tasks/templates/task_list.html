@@ -108,6 +108,54 @@
           </tbody>
       </table>
   </div>
+  <!-- Pagination Section -->
+    <div class="pagination justify-content-end">
+        <ul class="pagination">
+            {% if tasks.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">&laquo; first</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ tasks.previous_page_number }}">previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo; first</span>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link">previous</span>
+                </li>
+            {% endif %}
+
+            <li class="page-item active" aria-current="page">
+                <span class="page-link">{{ tasks.number }}</span>
+            </li>
+
+            {% if tasks.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ tasks.next_page_number }}">next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ tasks.paginator.num_pages }}">last &raquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">next</span>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link">last &raquo;</span>
+                </li>
+            {% endif %}
+
+            {% if not tasks.has_previous and not tasks.has_next %}
+                <li class="page-item">
+                    <span class="page-link">No pages found</span>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+
+
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>

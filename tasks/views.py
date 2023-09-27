@@ -69,29 +69,38 @@ class LoginView(View):
     
 
 
-class TaskListView(LoginRequiredMixin,FilterView):
+class TaskListView(LoginRequiredMixin, FilterView):
     model = Task
     template_name = 'task_list.html'
     context_object_name = 'tasks'
     ordering = ['priority']
-    paginate_by = 5
-    filterset_class = TaskFilter 
+    paginate_by = 2
+    filterset_class = TaskFilter
 
     def get_queryset(self):
-        query = self.request.GET.get('q')
         queryset = Task.objects.filter(user=self.request.user)
-
-
+        query = self.request.GET.get('q')
+        
         if query:
-            queryset = queryset.filter(
-                Q(title__icontains=query) 
-            )
+            queryset = queryset.filter(Q(title__icontains=query))
+        
+        return queryset
 
-        return queryset 
-    #search by title 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        # Get the current page number from the request
+        page_number = self.request.GET.get('page')
+        
+        # Create a paginator for the queryset
+        paginator = Paginator(self.get_queryset(), self.paginate_by)
+        
+        # Get the current page
+        page = paginator.get_page(page_number)
+        
+        context['tasks'] = page
         context['search_form'] = TaskFilter(data=self.request.GET, queryset=self.get_queryset())
+        
         return context
     
 #task details page 
@@ -113,7 +122,7 @@ class TaskCreateView(LoginRequiredMixin,CreateView):
         if photo_form.is_valid():
             for photo in self.request.FILES.getlist('photo'):
                 TaskPhoto.objects.create(task=task, photo=photo)
-
+        messages.success(self.request, 'Task added successfully.')
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -201,10 +210,7 @@ class TaskViewSet(LoginRequiredMixin,viewsets.ModelViewSet):
     
     
     
-class MyProtectedView(LoginRequiredMixin, View):
-    login_url = '/login/'  
-    redirect_field_name = 'next'  
-    raise_exception = False 
+
 
 
 

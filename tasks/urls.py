@@ -21,7 +21,7 @@ urlpatterns = [
     path('reset/done/', PasswordResetCompleteView.as_view(template_name='passwor_confirm_complete.html'), name='password_reset_complete'),
    
     #task crud views
-    path('tasks/',TaskListView.as_view(),name='task_list'),
+    path('tasks_list/',TaskListView.as_view(),name='task_list'),
     path('task/<int:pk>/', TaskDetailView.as_view(), name='task_detail'),
     path('create-task/', TaskCreateView.as_view(), name='create_task'),
     path('delete_task/<int:pk>/', TaskDeleteView.as_view(), name='delete_task'),
