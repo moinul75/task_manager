@@ -4,9 +4,10 @@ from django.contrib.auth.views import LogoutView,PasswordResetView,PasswordReset
 
 #for rest api and router 
 from rest_framework.routers import DefaultRouter
-from .views import TaskViewSet
+from .views import TaskViewSet,UserViewSet
 router = DefaultRouter()
-router.register(r'tasks', TaskViewSet)
+router.register(r'tasks', TaskViewSet,basename='task')
+router.register(r'users', UserViewSet, basename='user')
 
 
 urlpatterns = [

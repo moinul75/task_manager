@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tasks',
     'rest_framework',
+    'rest_framework.authtoken',
     'crispy_forms',
     'crispy_bootstrap5',
 ]
@@ -183,3 +184,11 @@ EMAIL_PORT = 587
 #login redirecting page 
 LOGIN_REDIRECT_URL = 'task_list'
 LOGIN_URL = 'login'
+
+
+#rest api authentication 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}

@@ -6,7 +6,7 @@
 {% load crispy_forms_tags %}
 
 <div class="container">
-   
+   <!--Search By Title-->
     <div class="container mt-4">
         <form method="get" action="{% url 'task_list' %}">
             <div class="row">
@@ -19,14 +19,7 @@
             </div>
         </form>
     </div>
-    
-    
-    
-    
-    
-
-
-
+    <!--Filter Section-->
     <form method="get" class="mb-0 mt-5">
         <div class="row align-items-center">
             <div class="col-md-2">
@@ -217,6 +210,7 @@
                         headers: {
                             'X-CSRFToken': getCookie('csrftoken'), 
                             'Content-Type': 'application/json',
+                           
                         },
                         body: JSON.stringify({}),
                     })
@@ -245,13 +239,6 @@
         }
     });
     
-
-    
-    
-    
-    
-    
-        
     </script>
 
 {% endblock content %}

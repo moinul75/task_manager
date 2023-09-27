@@ -3,20 +3,26 @@ from django.views import View
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from django.views.generic import ListView,DetailView,CreateView,UpdateView
-from django.contrib.auth import authenticate,login
+from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django_filters.views import FilterView
 from .filters import TaskFilter
-from django.core.paginator import Paginator
-from rest_framework import viewsets
-from .serializers import TaskWithPhotosSerializer
-
 from tasks.models import User,Task,TaskPhoto
 from .forms import UserRegistrationForm,LoginForm,TaskPhotoForm,TaskForm,TaskPhotoFormSet
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
+from rest_framework import viewsets, pagination
+from django.core.paginator import Paginator
+from rest_framework import viewsets
+from .serializers import  TaskSerializer,TaskPhotoSerializer,TaskWithPhotosSerializer,UserSerializer
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.authtoken.models import Token
+
 
 
 
@@ -204,10 +210,105 @@ class MarkAsDoneView(LoginRequiredMixin,View):
 
 #REST API using viewset (CRUD)
 
-class TaskViewSet(LoginRequiredMixin,viewsets.ModelViewSet):
-    queryset = Task.objects.all()
-    serializer_class = TaskWithPhotosSerializer
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
+    def register(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            token, created = Token.objects.get_or_create(user=user)  # Create or retrieve the user's token
+            return Response({'user_id': user.id, 'token': token.key}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
+    def login(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+        user = authenticate(email=email, password=password)
+
+        if user is not None:
+            login(request, user)
+            token, created = Token.objects.get_or_create(user=user)  # Create or retrieve the user's token
+            return Response({'message': 'Login successful', 'token': token.key}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'Login failed'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    def logout(self, request):
+        request.auth.delete() 
+        logout(request)
+        return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
     
+class CustomPageNumberPagination(LoginRequiredMixin,pagination.PageNumberPagination):
+    page_size = 2  
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
+class TaskViewSet(viewsets.ModelViewSet):
+    serializer_class = TaskWithPhotosSerializer
+    pagination_class = CustomPageNumberPagination
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Task.objects.filter(user=self.request.user)
+    
+    def create(self, request, *args, **kwargs):
+        task_serializer = TaskSerializer(data=request.data)
+        
+        if task_serializer.is_valid():
+            task = task_serializer.save(user=request.user)
+            photos_data = request.FILES.getlist('photos[]')
+            print(photos_data)
+            photo_serializer = TaskPhotoSerializer(data=photos_data, many=True)
+            print(photo_serializer)
+            if photo_serializer.is_valid():
+                for photo_data in photos_data:
+                    photo_serializer.save(task=task)
+                
+                return Response(task_serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                task.delete()
+                return Response(photo_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(task_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        task_serializer = TaskSerializer(instance, data=request.data, partial=True)
+        if task_serializer.is_valid():
+            task_serializer.save()
+
+            # Update associated TaskPhoto instances
+            photo_data = request.data.get('photos', [])
+            for photo_item in photo_data:
+                photo_id = photo_item.get('id')
+                if photo_id:
+                    try:
+                        task_photo = TaskPhoto.objects.get(id=photo_id)
+                        task_photo_serializer = TaskPhotoSerializer(task_photo, data=photo_item, partial=True)
+                        if task_photo_serializer.is_valid():
+                            task_photo_serializer.save()
+                        else:
+                            return Response(task_photo_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    except TaskPhoto.DoesNotExist:
+                        pass
+                else:
+                    task_photo_serializer = TaskPhotoSerializer(data=photo_item)
+                    if task_photo_serializer.is_valid():
+                        task_photo_serializer.save(task=instance)
+                    else:
+                        return Response(task_photo_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response(task_serializer.data, status=status.HTTP_200_OK)
+        return Response(task_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response({'message': 'Deleted data successfully'},status=status.HTTP_204_NO_CONTENT)
+
     
     
 
