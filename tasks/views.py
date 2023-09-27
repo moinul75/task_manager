@@ -80,7 +80,7 @@ class TaskListView(LoginRequiredMixin, FilterView):
     template_name = 'task_list.html'
     context_object_name = 'tasks'
     ordering = ['priority']
-    paginate_by = 2
+    paginate_by = 5
     filterset_class = TaskFilter
 
     def get_queryset(self):
@@ -94,14 +94,8 @@ class TaskListView(LoginRequiredMixin, FilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        # Get the current page number from the request
         page_number = self.request.GET.get('page')
-        
-        # Create a paginator for the queryset
         paginator = Paginator(self.get_queryset(), self.paginate_by)
-        
-        # Get the current page
         page = paginator.get_page(page_number)
         
         context['tasks'] = page
